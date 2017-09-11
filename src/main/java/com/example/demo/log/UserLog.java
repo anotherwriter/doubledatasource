@@ -24,6 +24,7 @@ import java.util.List;
 @Configuration
 public class UserLog {
 
+    //test synchronization
     private static BaseStatProperty userStatProperty;
 
     private static final Logger log = LoggerFactory.getLogger("statlog");
