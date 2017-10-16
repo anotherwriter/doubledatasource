@@ -80,6 +80,9 @@ public class RequestIdFilter implements Filter {
         try {
             InputStream is = request.getInputStream();
             wholeStr = IOUtils.toString(is, "utf-8");
+            log.error("if inputstream support:{}" ,is.markSupported());
+            if (is.markSupported())
+                is.reset();
         } catch (Exception e) {
             log.error("RequestIdFilter: get req body error");
             e.printStackTrace();

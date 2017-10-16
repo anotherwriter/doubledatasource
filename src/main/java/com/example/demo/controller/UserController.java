@@ -5,9 +5,12 @@ import com.example.demo.annotation.StatAnnotation;
 import com.example.demo.dao.ResourceDao;
 import com.example.demo.dao.UserDao;
 import com.example.demo.log.property.BaseStatProperty;
-import com.example.demo.model.db.Goods;
-import com.example.demo.model.db.User;
-import com.example.demo.model.db.UserInfo;
+import com.example.demo.model.db.*;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,7 +19,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.PreDestroy;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by donghao04 on 2017/7/28.
@@ -35,6 +40,30 @@ public class UserController {
 
     @Autowired
     private ResourceDao resourceDao;
+
+
+
+    @RequestMapping(method = RequestMethod.GET, value = "/search")
+    @ResponseStatus(HttpStatus.OK)
+    public String search(@RequestParam String keyword,
+                         @RequestParam Map<String, String> params) {
+
+        if (null == params)
+            return "error";
+
+        List<String> searchKeys = new ArrayList<>();
+        for (String key : params.keySet()) {
+            if (key.contains("keyword")) {
+                String value = params.get(key);
+                searchKeys.add(value);
+            }
+        }
+
+
+        return "keyword=" + keyword + ", params=" + params + ",keywords=" + searchKeys;
+    }
+
+
 
     @RequestMapping(method = RequestMethod.GET, value = "{id}")
     @ResponseStatus(HttpStatus.OK)

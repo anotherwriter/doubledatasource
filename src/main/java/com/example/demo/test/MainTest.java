@@ -22,7 +22,7 @@ public class MainTest {
         Object object = s;
 
         System.out.println(object);
-        System.out.println(Tools.MD5(""));
+        System.out.println(Tools.MD5("http://vrmp4.bluevr.cn/vr/va/51838.mp4/out.mp4"));
     }
 }
 
