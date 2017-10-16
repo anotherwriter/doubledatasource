@@ -120,7 +120,7 @@ public class UserLog {
     }
 
 
-    @Scheduled(initialDelay = 2 * 1000, fixedRate = 12 * 1000)
+    //@Scheduled(initialDelay = 2 * 1000, fixedRate = 12 * 1000)
     public void printLog(){
         BaseStatProperty baseStatProperty = (BaseStatProperty) SpringContextUtil.getBean("userInfoProperty") ;
         log.info("|user|req={}|succ={}|avg_cost_ms={}|goods_num={}|",
