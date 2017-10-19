@@ -1,5 +1,7 @@
 package com.example.demo.controller;
 
+import com.example.demo.model.db.ApiResponse;
+import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.IOUtils;
@@ -10,6 +12,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.io.InputStream;
+import java.net.InetAddress;
 import java.util.Map;
 
 @RestController
@@ -50,6 +53,31 @@ public class OtherLog {
         return   "requestBody:" + body;
     }
 
+    @RequestMapping(method = RequestMethod.GET, value = "/test5")
+    @ResponseStatus(HttpStatus.OK)
+    public String testReq5(@CookieValue(value = "BDUSS", required = false) String bduss,
+                           @CookieValue(value = "JSESSIONID") String jSessionId){
+        log.info("BDUSS={}, JSESSIONID={}", bduss, jSessionId);
+        return "JSESSIONID=" + jSessionId + " BUDSS=" + bduss;
+    }
+
+    @RequestMapping(method = RequestMethod.GET, value = "/test6")
+    @ResponseStatus(HttpStatus.OK)
+    public String testReq6(@CookieValue(value = "BDUSS", required = false) String bduss,
+                           HttpServletRequest request){
+
+        return getIpAddress(request);
+    }
+
+    @RequestMapping(method = RequestMethod.GET, value = "/test7")
+    @ResponseStatus(HttpStatus.OK)
+    public String testReq7(@RequestParam(value = "a", defaultValue = "hhh") String a){
+
+        return a;
+    }
+
+
+
     @RequestMapping(method = RequestMethod.GET, value = "{str}")
     @ResponseStatus(HttpStatus.OK)
     public String getUser(@PathVariable("str") String s) {
@@ -79,6 +107,42 @@ public class OtherLog {
 
         return wholeStr;
 
+    }
+
+
+    /**
+     * get client real ip address.
+     * agent software will influence the rightness of request.getRemoteAddr()
+     * @param request
+     * @return
+     */
+    String getIpAddress(HttpServletRequest request) {
+        String ip = request.getHeader("x-forwarded-for");
+        if (ip == null || ip.length() == 0 || "unknown".equalsIgnoreCase(ip)) {
+            ip = request.getHeader("Proxy-Client-IP");
+        }
+        if (ip == null || ip.length() == 0 || "unknown".equalsIgnoreCase(ip)) {
+            ip = request.getHeader("WL-Proxy-Client-IP");
+        }
+        if (ip == null || ip.length() == 0 || "unknown".equalsIgnoreCase(ip)) {
+            ip = request.getHeader("HTTP_CLIENT_IP");
+        }
+        if (ip == null || ip.length() == 0 || "unknown".equalsIgnoreCase(ip)) {
+            ip = request.getHeader("HTTP_X_FORWARDED_FOR");
+        }
+        if (ip == null || ip.length() == 0 || "unknown".equalsIgnoreCase(ip)) {
+            ip = request.getRemoteAddr();
+        }
+
+        if (ip.equalsIgnoreCase("0:0:0:0:0:0:0:1")) {
+            try {
+                InetAddress inetAddress = InetAddress.getLocalHost();
+                ip = inetAddress.getHostAddress();
+            } catch (Exception e) {
+                log.error("InetAddress.getLocalHost() Exception={}", e);
+            }
+        }
+        return ip;
     }
 
 }

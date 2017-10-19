@@ -1,5 +1,7 @@
 package com.example.demo.model.db;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -7,10 +9,13 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class ApiResponse<T> {
 
-    private int code = 0;
+    @JsonProperty("error_code")
+    private int errorCode = 0;
 
-    private String message = "ok";
+    @JsonProperty("error_msg")
+    private String errorMsg = "ok";
 
+    @JsonProperty("data")
     private T data = null;
 
     public ApiResponse(T data) {
@@ -18,8 +23,8 @@ public class ApiResponse<T> {
     }
 
     public ApiResponse(int code, String message) {
-        this.code = code;
-        this.message = message;
+        this.errorCode = code;
+        this.errorMsg = message;
     }
 
     public static final ApiResponse EmptyResponse = new ApiResponse<>();
