@@ -6,8 +6,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.Data;
 import lombok.ToString;
 
-import java.util.EnumSet;
-import java.util.Set;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -19,7 +18,40 @@ import static java.util.EnumSet.of;
 
 public class Main {
 
+
+    public static void getClassification(CommonInterface commonInterface) {
+        System.out.println("test print classification: " + commonInterface.getClassification());
+    }
     public static void main(String[] args){
+
+        List<Integer> list = new ArrayList<>();
+        for (int i = 1; i <= 7; i++) {
+            list.add(i);
+        }
+        int start = 0, limit = 3;
+        for (int i = start; i < list.size(); ) {
+            List<Integer> subList;
+            if(i + limit < list.size())
+                subList = list.subList(i, i + limit);
+            else
+                subList = list.subList(i, list.size());
+
+            System.out.println(subList);
+            i += limit;
+        }
+
+
+
+        List<String> testList = new ArrayList<>();
+
+        final Pattern pattern1 = Pattern.compile("^heichaapp.*=(\\d+)$");
+
+        Matcher matcher1 = pattern1.matcher("heichaapp://historyfeed?type=3");
+        if (matcher1.find()) {
+            System.out.println("cotent: " + matcher1.group(1));
+        } else {
+            System.out.println("doesn't match");
+        }
 
        ClientPageType clientPageType = ClientPageType.valueOf("SEARCH");
        System.out.println(clientPageType.getOrderByString());
@@ -31,6 +63,8 @@ public class Main {
         testData.setName("t1");
         testData.setGender("m");
         testData.setName("cccc");
+        testData.setClassification("math,hhhh");
+        getClassification(testData);
 
         System.out.println(testData);
         String testStr = "status=1&need_reset_cookie=0&session_id=&uid=0&created_time=0&last_login_time=0&access_count=0&last_updated_time=0&global_access_time=0&private_access_time=0&pwd_flag=0&reserved=0&secureemail=&securemobil=&risk_rank=0&risk_code=0&username=&displayname=&global_data=%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00&private_data=%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00";
@@ -88,11 +122,13 @@ public class Main {
 
 @Data
 @ToString
-class TestData {
+class TestData implements CommonInterface{
 
     private String name;
 
     private String gender;
+
+    private String classification;
 
     private int age;
 
@@ -103,4 +139,8 @@ class TestData {
     public int getDbAge() {
         return this.age;
     }
+}
+
+interface CommonInterface{
+    String getClassification() ;
 }

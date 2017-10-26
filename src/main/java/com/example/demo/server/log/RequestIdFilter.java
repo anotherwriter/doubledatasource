@@ -45,7 +45,7 @@ public class RequestIdFilter implements Filter {
         threadLocalRequestId.set(requestId);
         response.addHeader(X_REQUEST_ID, requestId);
         beginTime.set(System.currentTimeMillis());
-        log.info("[begin] {} {} {}", request.getMethod(), request.getRequestURI(), charReader(request));
+        log.info("[begin] {} {} {}", request.getMethod(), request.getRequestURI());
     }
 
     private void afterCompletion(HttpServletRequest request, HttpServletResponse response) {
@@ -75,22 +75,22 @@ public class RequestIdFilter implements Filter {
      * @param request
      * @return
      */
-    String charReader(HttpServletRequest request) {
-        String wholeStr = "";
-        try {
-            InputStream is = request.getInputStream();
-            wholeStr = IOUtils.toString(is, "utf-8");
-            log.error("if inputstream support:{}" ,is.markSupported());
-            if (is.markSupported())
-                is.reset();
-        } catch (Exception e) {
-            log.error("RequestIdFilter: get req body error");
-            e.printStackTrace();
-            return "get req body error";
-        }
-
-        return wholeStr;
-
-    }
+//    String charReader(HttpServletRequest request) {
+//        String wholeStr = "";
+//        try {
+//            InputStream is = request.getInputStream();
+//            wholeStr = IOUtils.toString(is, "utf-8");
+//            log.error("if inputstream support:{}" ,is.markSupported());
+//            if (is.markSupported())
+//                is.reset();
+//        } catch (Exception e) {
+//            log.error("RequestIdFilter: get req body error");
+//            e.printStackTrace();
+//            return "get req body error";
+//        }
+//
+//        return wholeStr;
+//
+//    }
 }
 

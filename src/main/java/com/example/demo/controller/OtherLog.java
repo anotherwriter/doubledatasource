@@ -1,6 +1,7 @@
 package com.example.demo.controller;
 
 import com.example.demo.model.db.ApiResponse;
+import com.example.demo.model.db.User;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -13,6 +14,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.io.InputStream;
 import java.net.InetAddress;
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -63,17 +65,21 @@ public class OtherLog {
 
     @RequestMapping(method = RequestMethod.GET, value = "/test6")
     @ResponseStatus(HttpStatus.OK)
-    public String testReq6(@CookieValue(value = "BDUSS", required = false) String bduss,
+    public String testReq6(@RequestParam(value = "a", defaultValue = "hhh") String a,
+                           @RequestParam Map<String, String> params,
+                           @CookieValue(value = "BDUSS", required = false) String bduss,
                            HttpServletRequest request){
 
-        return getIpAddress(request);
+        String ip = getIpAddress(request);
+        return a + " ip: " + ip + " budss:" + bduss + " params: " + params;
     }
 
     @RequestMapping(method = RequestMethod.GET, value = "/test7")
     @ResponseStatus(HttpStatus.OK)
-    public String testReq7(@RequestParam(value = "a", defaultValue = "hhh") String a){
+    public ApiResponse testReq7(@RequestParam(value = "a", defaultValue = "hhh") String a){
 
-        return a;
+        List<User> list = null;
+        return new ApiResponse(list);
     }
 
 
