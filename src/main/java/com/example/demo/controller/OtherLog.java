@@ -1,5 +1,6 @@
 package com.example.demo.controller;
 
+import com.example.db2.ChargingUserMapper;
 import com.example.demo.model.db.ApiResponse;
 import com.example.demo.model.db.User;
 import lombok.Data;
@@ -82,6 +83,20 @@ public class OtherLog {
         return new ApiResponse(list);
     }
 
+
+    @RequestMapping(method = RequestMethod.POST, value = "/test8")
+    @ResponseStatus(HttpStatus.OK)
+    public String testReq8(@RequestBody String param) {
+        log.info("testPost: param={}", param);
+        return "testReq8 param:" + param;
+    }
+
+    @RequestMapping(method = RequestMethod.POST, value = "/test9")
+    @ResponseStatus(HttpStatus.OK)
+    public String testReq9(@RequestParam String param) {
+        log.info("testPost: param={}", param);
+        return "testReq9 param:" + param;
+    }
 
 
     @RequestMapping(method = RequestMethod.GET, value = "{str}")

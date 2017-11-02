@@ -1,12 +1,19 @@
 package com.example.demo.test;
 
 
-import com.example.demo.controller.TestReq;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.Data;
 import lombok.ToString;
+import org.apache.commons.net.util.Base64;
+import org.springframework.util.StringUtils;
 
-import java.util.*;
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -22,28 +29,101 @@ public class Main {
     public static void getClassification(CommonInterface commonInterface) {
         System.out.println("test print classification: " + commonInterface.getClassification());
     }
-    public static void main(String[] args){
 
-        List<Integer> list = new ArrayList<>();
-        for (int i = 1; i <= 7; i++) {
-            list.add(i);
+
+    public static void main(String[] args) {
+
+
+
+        String bduss = "GVkOTB2OEwxRkQtMm5qTExSZXBmWTRCNEtaNGVEMjA0cGVIaUZob210M1h6Q0JhTVFBQUFBJCQAAAAAAAAAAAEAAADY-BunYW5vdGhlcl93cml0ZXIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAANc~-VnXP~lZa";
+
+        int salt = 0;
+        for (int i = 0; i < bduss.length(); ++i) {
+            salt += i;
+            salt += (byte) bduss.charAt(i);
         }
-        int start = 0, limit = 3;
-        for (int i = start; i < list.size(); ) {
-            List<Integer> subList;
-            if(i + limit < list.size())
-                subList = list.subList(i, i + limit);
-            else
-                subList = list.subList(i, list.size());
-
-            System.out.println(subList);
-            i += limit;
+        salt = salt % 2 + 1;
+        String str = bduss.substring(bduss.length() - salt) + bduss.substring(0, bduss.length() - salt);
+        str = StringUtils.replace(str, "-", "+");
+        str = StringUtils.replace(str, "~", "/");
+        try {
+            byte[] decoded_bytes = Base64.decodeBase64(str.getBytes("UTF-8"));
+            byte[] userIdHigherBytes = new byte[4];
+            byte[] userIdLowerBytes = new byte[4];
+            byte[] userNameBytes = new byte[64];
+            System.arraycopy(decoded_bytes, 60, userIdHigherBytes, 0, 4);
+            System.arraycopy(decoded_bytes, 68, userIdLowerBytes, 0, 4);
+            int userNameLen = 64;
+            if (decoded_bytes.length - 8 - 72 < 64) {
+                userNameLen = decoded_bytes.length - 8 - 72;
+            }
+            System.arraycopy(decoded_bytes, 72, userNameBytes, 0, userNameLen);
+            int userIdLower = bytes2Int(userIdLowerBytes, ByteOrder.LITTLE_ENDIAN);
+            int userIdHigher = bytes2Int(userIdHigherBytes, ByteOrder.LITTLE_ENDIAN);
+            long userId = ((long) userIdLower & 0xFFFFFFFFl) | (((long) userIdHigher << 32) & 0x7FFFFFFF00000000l);
+            System.out.println("userId: " + userId);
+            String userName = new String(userNameBytes, "GB2312");
+            System.out.println("userName: " + StringUtils.trimTrailingCharacter(userName, '\0'));
+        } catch (UnsupportedEncodingException e) {
+            System.out.println(e);
         }
 
 
 
-        List<String> testList = new ArrayList<>();
+        String phone = "15675512071";
+        final Pattern pattern = Pattern.compile("^1[0-9]{10}$");
+        Matcher matcher = pattern.matcher(phone);
+        if (!matcher.find()) {
+            System.out.println("error. phone:" + phone);
+        } else {
+            System.out.println("right.");
+        }
 
+        String param = "{\n" +
+                "    \"partyId\": \" 1 2 0 9 9 9 2 \",\n" +
+                "    \"data\": {\n" +
+                "        \"type\": 3,\n" +
+                "        \"size\": 1,\n" +
+                "        \"messageList\": [\n" +
+                "            {\n" +
+                "                \"state\": \"0\",\n" +
+                "                \"mobiles\": \"13910567310\",\n" +
+                "                \"userPackage\": \"000DADSASD00B10\",\n" +
+                "                \"recvTime\": \"20160302150711\",\n" +
+                "                \"sendID\": \"DA8887DADADA\",\n" +
+                "                \"statedes\": \"订购成功\",\n" +
+                "                \"requestid\": \"sadasaaaaada\"\n" +
+                "            }\n" +
+                "        ]\n" +
+                "    },\n" +
+                "    \"time\": \" 2 0 1 5 0 8 0 4 1 1 1 2 5 2 9 3 6 \",\n" +
+                "    \"sign\": \" a 7 5 7 1 7 d a 5 4 2 0 4 4 7 a 4 7 c 1 6 a 2 f e 1d622ba\"\n" +
+                "}";
+
+        ObjectMapper objectMapper = new ObjectMapper();
+        OperatorCallBack operatorCallBack = null;
+        try {
+            operatorCallBack = objectMapper.readValue(param, OperatorCallBack.class);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        System.out.println(operatorCallBack);
+
+        System.out.println(new Date(1509336000002L));
+
+        System.getProperty("https.protocols");
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTimeInMillis(1509379200 * 1000L);
+        System.out.println(calendar.getTime());
+
+        SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        Date date = new Date();
+        date.setTime(1509379200);
+        System.out.println(df.format(date));
+
+//        RestTemplate restTemplate = new RestTemplate();
+//        String result = restTemplate.getForObject("https://api.weixin.qq.com/cgi-bin/getcallbackip?access_token=ACCESS_TOKEN",String.class);
+//        System.out.println(result);
         final Pattern pattern1 = Pattern.compile("^heichaapp.*=(\\d+)$");
 
         Matcher matcher1 = pattern1.matcher("heichaapp://historyfeed?type=3");
@@ -53,94 +133,37 @@ public class Main {
             System.out.println("doesn't match");
         }
 
-       ClientPageType clientPageType = ClientPageType.valueOf("SEARCH");
-       System.out.println(clientPageType.getOrderByString());
-
-       String errorMsg = ErrorType.getErrorMsgByErrorCode(0);
-       System.out.println(errorMsg);
-
-        TestData testData = new TestData();
-        testData.setName("t1");
-        testData.setGender("m");
-        testData.setName("cccc");
-        testData.setClassification("math,hhhh");
-        getClassification(testData);
-
-        System.out.println(testData);
-        String testStr = "status=1&need_reset_cookie=0&session_id=&uid=0&created_time=0&last_login_time=0&access_count=0&last_updated_time=0&global_access_time=0&private_access_time=0&pwd_flag=0&reserved=0&secureemail=&securemobil=&risk_rank=0&risk_code=0&username=&displayname=&global_data=%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00&private_data=%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00";
-
-        String[] keyValues = testStr.split("&");
-        int i = 0;
-        String jsonStr ="{";
-        for (String keyValue : keyValues) {
-            String[] tempArray = keyValue.split("=");
-            if (null != tempArray && tempArray.length >= 2) {
-                // set key
-                jsonStr += "\"" + tempArray[0] + "\"";
-                // check the value if the string
-                Pattern pattern = Pattern.compile("^[0-9]*$");
-                Matcher matcher = pattern.matcher(tempArray[1]);
-                //tempArray[1].matches("^[0-9]*$")
-                if (tempArray[1].matches("^[0-9]*$")) { // tempArray[1] is number
-                    jsonStr += (":" + tempArray[1] +",");
-                } else {
-                    jsonStr += (":\"" + tempArray[1] +"\",");
-                }
-            }
-        }
-        char[] jsonChars = jsonStr.toCharArray();
-        jsonChars[jsonChars.length - 1] = ' ';
-
-
-        String realJsonStr = String.copyValueOf(jsonChars);
-
-        realJsonStr += "}";
-
-        System.out.println(realJsonStr);
-
-        PassportRsp passportRsp = new PassportRsp();
-        try {
-            passportRsp = new ObjectMapper().readValue(realJsonStr, PassportRsp.class);
-
-        } catch (Exception e) {
-            System.out.println(e.toString());
-        }
-        System.out.println(passportRsp.getStatus());
-
-        String str = "status=1&need_reset_cookie=0&session_id=&uid=0&created_time=0&last_login_time=0&access_count=0&last_updated_time=0&global_access_time=0&private_access_time=0&pwd_flag=0&reserved=0&secureemail=&securemobil=&risk_rank=0&risk_code=0&username=&displayname=&" +
-                "global_data=%00&private_data=%00%0";
-        if (null != str && str.contains("status")) {
-            str = str.split("status")[0];
-            System.out.println(str );
-        }
 
     }
 
-
-
-}
-
-@Data
-@ToString
-class TestData implements CommonInterface{
-
-    private String name;
-
-    private String gender;
-
-    private String classification;
-
-    private int age;
-
-    public void setDbAge(int age) {
-        this.age = age;
+    private static int bytes2Int(byte[] src, ByteOrder byteOrder) {
+        ByteBuffer buffer = ByteBuffer.wrap(src);
+        buffer.order(byteOrder);
+        return buffer.getInt();
     }
 
-    public int getDbAge() {
-        return this.age;
-    }
-}
+    @Data
+    @ToString
+    class TestData implements CommonInterface {
 
-interface CommonInterface{
-    String getClassification() ;
+        private String name;
+
+        private String gender;
+
+        private String classification;
+
+        private int age;
+
+        public void setDbAge(int age) {
+            this.age = age;
+        }
+
+        public int getDbAge() {
+            return this.age;
+        }
+    }
+
+    interface CommonInterface {
+        String getClassification();
+    }
 }
