@@ -9,9 +9,9 @@ interface LastRunTimeMapper {
         SELECT
             count(1)
         FROM
-            charging_user
+            last_run_time
         WHERE
-            xuid_md5 = @{md5}
+            xuid_md5 = #{md5}
     ''')
     int getMd5Num(@Param("md5") String md5)
 }

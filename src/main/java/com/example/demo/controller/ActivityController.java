@@ -77,7 +77,10 @@ public class ActivityController {
         chargingUser.setPhone(req.getPhone());
 
         int rows = chargingUserDao.insertChargingUser(chargingUser);
-        log.debug("insertChargingUser finish. chargingUser={}, rows={}", chargingUser, rows);
+        if (0 == rows) {
+            log.error("already have this data");
+        }
+        log.info("insertChargingUser finish. chargingUser={}, rows={}", chargingUser, rows);
 
         return ApiResponse.EmptyResponse;
     }
@@ -120,7 +123,7 @@ public class ActivityController {
         List<ChargingUser> chargingUsers = chargingUserDao.getChargingUserByPhoneOrMd5(phone, md5);
 
         if (null == chargingUsers || 0 == chargingUsers.size()) {
-            log.debug("xuid or phone is not new. md5={}", md5);
+            log.debug("xuid or phone is new. md5={}", md5);
             return true;
         }
 
@@ -134,14 +137,22 @@ public class ActivityController {
      * @return
      */
     private boolean isNewUser(String xuid) {
+        // check xuid form
         if (StringUtils.isEmpty(xuid)) {
             log.error("xuid is empty");
             return false;
         }
+
+        if (!xuid.contains("CUID") || !xuid.contains("MACID")) {
+            log.error("xuid form error");
+            return false;
+        }
+
         // search md5sum(xuid) from last_run_time
         String md5 = MD5(xuid);
         int count = lastRunTimeMapper.getMd5Num(md5);
 
+        log.debug("count={}, md5={}", count, md5);
         if (count != 0) {
             return false;
         }
