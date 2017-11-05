@@ -1,11 +1,17 @@
 package com.example.demo.test;
 
 
+import com.example.demo.controller.SubmitReq;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.Data;
 import lombok.ToString;
 import org.apache.commons.net.util.Base64;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.util.StringUtils;
+import org.springframework.web.client.RestTemplate;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -33,6 +39,24 @@ public class Main {
 
     public static void main(String[] args) {
 
+        String workerUrl = "http://localhost:8080/api/activity/HandleSubmit/submit";
+        SubmitReq submitReq = new SubmitReq();
+
+        ObjectMapper mapper = new ObjectMapper();
+        String body = "param=";
+        try {
+            body += mapper.writeValueAsString(submitReq);
+        } catch (JsonProcessingException e) {
+            System.out.println(e.getMessage());
+        }
+        System.out.println("send req data: " + body);
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
+        HttpEntity<String> httpEntity = new HttpEntity<>(body, headers);
+        RestTemplate httpClient = new RestTemplate();
+        String result = httpClient.postForObject(workerUrl, httpEntity, String.class);
+
+        System.out.println("rsp result=" + result);
 
 
         String bduss = "2c2cjZHYk5OTWFrOTBmM3JaWG50WjB1dEVCUUwtMDBzSWNnTHZkNnVHcnFtQ0phSVFB\n" +

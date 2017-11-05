@@ -5,14 +5,19 @@ import com.example.demo.dao.ChargingUserDao;
 import com.example.demo.model.db.ApiResponse;
 import com.example.demo.model.db.ChargingDataReq;
 import com.example.demo.model.db.ChargingUser;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.client.RestTemplate;
 
 import javax.validation.Valid;
 import java.io.IOException;
@@ -38,6 +43,35 @@ public class ActivityController {
     private final ChargingUserDao chargingUserDao;
 
     private final LastRunTimeMapper lastRunTimeMapper;
+
+
+    @RequestMapping(method = RequestMethod.GET, value = "/send_req")
+    @ResponseStatus(HttpStatus.OK)
+    public ApiResponse sendReqToOpeartor() {
+        log.info("send req to operator.");
+
+        List<ChargingUser> chargingUsers = chargingUserDao.getChargingUserByStatus(0);
+
+        String workerUrl = "http://localhost:8080/api/activity/HandleSubmit/submit";
+        SubmitReq submitReq = new SubmitReq();
+
+        ObjectMapper mapper = new ObjectMapper();
+        String body = "param=";
+        try {
+            body += mapper.writeValueAsString(submitReq);
+        } catch (JsonProcessingException e) {
+            log.error(e.getMessage());
+        }
+        log.info("send req data: {}", body);
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
+        HttpEntity<String> httpEntity = new HttpEntity<>(body, headers);
+        RestTemplate httpClient = new RestTemplate();
+        String result = httpClient.postForObject(workerUrl, httpEntity, String.class);
+
+        SubmitRsp submitRsp = new SubmitRsp();
+        return new ApiResponse(submitRsp);
+    }
 
 
     @RequestMapping(method = RequestMethod.POST, value = "/HandleSubmit/submit")

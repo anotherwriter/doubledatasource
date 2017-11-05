@@ -20,6 +20,10 @@ public class ChargingUserDao {
         return chargingUserMapper.getChargingUserByPhoneOrMd5(phone, md5);
     }
 
+    public List<ChargingUser> getChargingUserByStatus(int status) {
+        return chargingUserMapper.getChargingUserByStatus(status);
+    }
+
     public ChargingUser getChargingUserByMd5(String md5) {
         return chargingUserMapper.getChargingUserByMd5(md5);
     }

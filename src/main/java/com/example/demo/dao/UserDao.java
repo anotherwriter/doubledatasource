@@ -33,7 +33,7 @@ public class UserDao {
     @Value("${loadingCache.user.ttl_minute:10}")
     private int userCacheTTL;
 
-    @Value("${loadingCache.aifeed.max_size:997}")
+    @Value("${loadingCache.user.max_size:1}")
     private int userCacheMaxSize;
 
     private LoadingCache<Integer, User> loadingCache;
@@ -66,7 +66,8 @@ public class UserDao {
         } else {
             log.info("this user({}) is not in loadingCache", id);
             cacheUser = userMapper.getUser(id);
-            loadingCache.put(id, cacheUser);
+            if (null != cacheUser)
+                loadingCache.put(id, cacheUser);
         }
 
         return cacheUser;

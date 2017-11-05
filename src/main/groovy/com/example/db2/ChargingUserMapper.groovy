@@ -67,6 +67,21 @@ interface ChargingUserMapper {
     ''')
     List<ChargingUser> getChargingUserByPhoneOrMd5(@Param("phone") String phone, @Param("md5") String md5)
 
+    @Select('''
+        SELECT
+            id,
+            xuid,
+            `md5`,
+            phone,
+            charge_status
+        FROM
+            charging_user
+        WHERE
+            `charge_status` = #{status}
+            LIMIT 400
+    ''')
+    List<ChargingUser> getChargingUserByStatus(@Param("status") int status)
+
     @Insert('''
         INSERT IGNORE INTO
             charging_user
