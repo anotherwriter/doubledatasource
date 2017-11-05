@@ -40,6 +40,25 @@ public class ActivityController {
     private final LastRunTimeMapper lastRunTimeMapper;
 
 
+    @RequestMapping(method = RequestMethod.POST, value = "/HandleSubmit/submit")
+    @ResponseStatus(HttpStatus.OK)
+    public ApiResponse simulateOpeartor(@RequestParam(name = "param") String jsonStr) {
+        log.info("submit req. param={}", jsonStr);
+
+        ObjectMapper objectMapper = new ObjectMapper();
+        SubmitReq submitReq = null;
+        try {
+            submitReq = objectMapper.readValue(jsonStr, SubmitReq.class);
+        } catch (IOException e) {
+            log.error("operator callBack exception={}", e);
+        }
+
+        log.debug("submitReq={}", submitReq);
+
+        SubmitRsp submitRsp = new SubmitRsp();
+        return new ApiResponse(submitRsp);
+    }
+
     @RequestMapping(method = RequestMethod.POST, value = "/charging_data/is_new_user")
     @ResponseStatus(HttpStatus.OK)
     public ApiResponse isNewUser(@RequestBody @Valid ChargingDataReq req) {
