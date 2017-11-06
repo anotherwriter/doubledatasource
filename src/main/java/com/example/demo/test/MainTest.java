@@ -9,15 +9,25 @@ import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Date;
+import java.util.Random;
 
 public class MainTest {
 
     public static void main(String[] args){
 
+//        Date date = new Date(10234567891234567L);
+//        SimpleDateFormat df = new SimpleDateFormat("yyyyMMddHHmmssSSS");
+//        System.out.println(df.format(date));
 
-        String testmd5 = "HAD5Rxw+31xEEIssGMcVkQ==_CUID_MFqKFecGNiaBa5ntBQCR15c9yb/7j280uVWmHQ4RNBGhSjii0BqMq+r0WMPjCLpTpSx3piqrtcuuN25IcN2bNA==_MACID_Dh7ToRNxXQUCrJjh3QIrTg==";
+        Random random = new Random();
+        int randomNum = random.nextInt(9999) + 1;
+        System.out.println(String.format("%04d", randomNum));
+
+        String testmd5 = "w";
 
         System.out.println(Tools.MD5(testmd5));
 
