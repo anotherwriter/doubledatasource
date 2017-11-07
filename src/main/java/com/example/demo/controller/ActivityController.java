@@ -90,6 +90,8 @@ public class ActivityController {
         log.debug("submitReq={}", submitReq);
 
         SubmitRsp submitRsp = new SubmitRsp();
+        submitRsp.setCode("0");
+        submitRsp.setDescription("success");
         String rspStr = null;
         try {
             rspStr = objectMapper.writeValueAsString(submitRsp);

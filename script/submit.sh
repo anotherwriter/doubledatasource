@@ -56,7 +56,8 @@ do
     fi
 
     echo "resultStr=$resultStr"
-
+    code=`$resultStr | awk -F , '{split($1,code,":"); print code[2]}'`
+    echo "code:$code"
 
 done <$HEICHA_ACTIVITY_TMP_DIR/new_work
 
