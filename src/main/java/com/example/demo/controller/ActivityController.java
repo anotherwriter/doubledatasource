@@ -76,7 +76,7 @@ public class ActivityController {
 
     @RequestMapping(method = RequestMethod.POST, value = "/HandleSubmit/submit")
     @ResponseStatus(HttpStatus.OK)
-    public ApiResponse simulateOpeartor(@RequestParam(name = "param") String jsonStr) {
+    public String simulateOpeartor(@RequestParam(name = "param") String jsonStr) {
         log.info("submit req. param={}", jsonStr);
 
         ObjectMapper objectMapper = new ObjectMapper();
@@ -90,7 +90,14 @@ public class ActivityController {
         log.debug("submitReq={}", submitReq);
 
         SubmitRsp submitRsp = new SubmitRsp();
-        return new ApiResponse(submitRsp);
+        String rspStr = null;
+        try {
+            rspStr = objectMapper.writeValueAsString(submitRsp);
+        } catch (JsonProcessingException e) {
+            rspStr = "{\"code\":500,\"message\":\"internal error\"}";
+            e.printStackTrace();
+        }
+        return rspStr;
     }
 
     @RequestMapping(method = RequestMethod.POST, value = "/charging_data/is_new_user")

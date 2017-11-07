@@ -38,12 +38,12 @@ do
 
     randomNum=`printf "%04d" $randomNum`
 
-    time_now=`date +%Y%m%d%H%M%S%N`;
-    timeStamp=${time_now:0:17}
+    timeNow=`date +%Y%m%d%H%M%S%N`;
+    timeStamp=${timeNow:0:17}
 
     requestid="$timeStamp$partyId$randomNum"
     body="\"body\":{\"userdataList\":[{\"userPackage\":\"30\",\"mobiles\":\"$PHONE\"}],\"size\":1,\"type\":\"0\",\"requestid\":\"$requestid\"}}"
-    sign=`echo -n "body${body}key${key}partyId${partyId}requestid${requestid}"| md5sum`
+    sign=`echo -n "body${body}key${key}partyId${partyId}requestid${requestid}"|md5sum|cut -d ' ' -f1`
 
     reqData="{\"header\":{\"sign\":\"$sign\",\"partyId\":$partyId},$body";
 
@@ -56,6 +56,7 @@ do
     fi
 
     echo "resultStr=$resultStr"
+
 
 done <$HEICHA_ACTIVITY_TMP_DIR/new_work
 
