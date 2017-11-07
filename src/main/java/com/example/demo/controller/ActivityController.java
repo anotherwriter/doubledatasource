@@ -91,7 +91,9 @@ public class ActivityController {
 
         SubmitRsp submitRsp = new SubmitRsp();
         submitRsp.setCode("0");
-        submitRsp.setDescription("success");
+        submitRsp.setDescription("成功，恭喜你");
+        submitRsp.setRequestid("sdfljsaflsdrequestid");
+        submitRsp.setSendid("sdfsadfsendid");
         String rspStr = null;
         try {
             rspStr = objectMapper.writeValueAsString(submitRsp);
