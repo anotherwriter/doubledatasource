@@ -12,10 +12,14 @@ key="94d3e85b26dce7a0ec292da44ad3ac75"
 partyId=50002014
 userName="baiduwangxun"
 
-downloadFailCount=0
-splitFailCount=0
+
+failCount=0
 succCount=0
-mysqlErr=0
+
+function parse_json(){
+#echo "$1" | sed "s/.*\"$2\":\([^,}]*\).*/\1/"
+echo "${1//\"/}" | sed "s/.*$2:\([^,}]*\).*/\1/"
+}
 
 function rand(){
     min=$1
@@ -27,7 +31,7 @@ randomNum=$(rand 1 9999)
 
 while read ID MD5 PHONE CHARGE_STATUS
 do
-    LOG_INFO "start processing $ID $MD5 $PHONE $CHARGE_STATUS"
+    LOG_INFO "start processing ID=$ID md5=$MD5 phone=$PHONE status=$CHARGE_STATUS"
 
     randomNum=`expr $randomNum + 1`
 
@@ -48,20 +52,40 @@ do
     reqData="{\"header\":{\"sign\":\"$sign\",\"partyId\":$partyId},$body";
 
     resultStr=`curl --request POST --url http://localhost:8080/api/activity/HandleSubmit/submit --header 'cache-control: no-cache' --header 'content-type: application/x-www-form-urlencoded' --data param="$reqData"`
+    LOG_DEBUG "$resultStr"
     if [ $? -ne 0 ]
     then
         # write to error log
         echo "curl error"
+        echo "$PHONE" >> $HEICHA_ACTIVITY_ERROR_DIR/curl_error
         continue
     fi
 
     echo "resultStr=$resultStr"
-    code=`$resultStr | awk -F , '{split($1,code,":"); print code[2]}'`
-    echo "code:$code"
 
+    code=$(parse_json $resultStr "code")
+    description=$(parse_json $resultStr "description")
+    sendid=$(parse_json $resultStr "sendid")
+    requestid=$(parse_json $resultStr "requestid")
+    echo "code:$code description:$description sendid:$sendid requestid:$requestid"
+
+    if [ "$code" = "0" ]
+    then
+        succCount=`expr $succCount + 1`
+        LOG_INFO "rsp from operator ok: phone=$PHONE code=$code description=$description sendid=$sendid requestid=$requestid"
+        $HEICHA_ACTIVITY_MYSQL_BIN -h$HEICHA_ACTIVITY_MYSQL_HOST -P$HEICHA_ACTIVITY_MYSQL_PORT -u$HEICHA_ACTIVITY_MYSQL_USER -p$HEICHA_ACTIVITY_MYSQL_PWD -Dheicha_db -NB -e "update charging_user set charge_status=1 where id=$ID limit 1"
+    fi
+
+    if [ "$code" != "0" ]
+    then
+        failCount=`expr $failCount + 1`
+        LOG_ERROR "rsp from operator error: phone=$PHONE code=$code description=$description sendid=$sendid requestid=$requestid"
+    fi
 done <$HEICHA_ACTIVITY_TMP_DIR/new_work
 
-taskNum=`wc -l $HEICHA_ACTIVITY_TMP_DIR/new_work`
 
 echo "over"
+taskNum=`wc -l $HEICHA_ACTIVITY_TMP_DIR/new_work`
+LOG_INFO "finish $taskNum tasks succ: $succCount fail: $failCount"
+
 
