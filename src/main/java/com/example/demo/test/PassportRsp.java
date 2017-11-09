@@ -1,48 +1,95 @@
 package com.example.demo.test;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
+import lombok.ToString;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.util.StringUtils;
+
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
 
 @Data
+@ToString
+@Slf4j
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class PassportRsp {
 
-    private Integer status; // 代表含义请参照PassortStatusCommon
+    @JsonIgnore
+    private int status = 0;
 
-    private Integer need_reset_cookie; // 指示是否需要重置用户Cookie，每次请求都有效，1：需要重置，0：不需要重置
+    @JsonIgnore
+    private Integer need_reset_cookie;
 
-    private String session_id; // 可能的SessionID
+    @JsonIgnore
+    private String session_id;
 
-    private Integer uid; // 可能的用户ID
+    @JsonIgnore
+    private Long uid;
 
-    private Long created_time; // session创建时间
+    @JsonIgnore
+    private Long created_time;
 
-    private Long last_login_time; // 当前session的登录时间
+    @JsonIgnore
+    private Long last_login_time;
 
-    private Integer access_count; // 本次会话访问总次数
+    @JsonIgnore
+    private Integer access_count;
 
-    private Long last_updated_time; // 最后更新时间
+    @JsonIgnore
+    private Long last_updated_time;
 
-    private Long global_access_time; // 访问所有应用的最后时间
+    @JsonIgnore
+    private Long global_access_time;
 
-    private Long private_access_time; // 访问本应用的最后时间
+    @JsonIgnore
+    private Long private_access_time;
 
-    private Integer pwd_flag; // 是否记住密码：1为记住密码，0为未记住密码
+    @JsonIgnore
+    private Integer pwd_flag;
 
-    private Integer reserved; // 保留数据
+    @JsonIgnore
+    private Long reserved;
 
+    @JsonProperty("mail")
     private String secureemail;
 
-    private Long securemobil;
+    @JsonIgnore
+    private String securemobil;
 
-    private Integer risk_rank;
+    @JsonIgnore
+    private Long risk_rank;
 
-    private Integer risk_code;
+    @JsonIgnore
+    private Long risk_code;
 
-    private String username; // 可能的用户名
+    private String username;
 
+    @JsonIgnore
     private String displayname;
 
-    private String global_data; // 可能的需要修改的公共Session数据
+    @JsonIgnore
+    private String global_data;
 
-    private String private_data; // 可能的私有Session数据
+    @JsonIgnore
+    private String private_data;
+
+    public String getUsername() {
+        try {
+            if (!StringUtils.isEmpty(username)) {
+                username = URLDecoder.decode(username, "gb2312");
+            } else {
+                username = "";
+            }
+
+        } catch (UnsupportedEncodingException e) {
+            log.error("userName decoder error. userName={}, exception={}", username, e);
+            return "";
+        }
+
+        return username;
+    }
 
 }
