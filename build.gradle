@@ -42,6 +42,7 @@ dependencies {
 	compile('org.codehaus.groovy:groovy:2.4.3')
 	runtime('mysql:mysql-connector-java')
 	compileOnly('org.projectlombok:lombok')
+	compile('net.sourceforge.htmlunit:htmlunit:2.19')
 	testCompile('org.springframework.boot:spring-boot-starter-test')
 }
 

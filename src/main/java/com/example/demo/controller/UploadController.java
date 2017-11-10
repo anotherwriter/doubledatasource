@@ -36,6 +36,7 @@ public class UploadController {
             }
 
             if (!uploadFile.isEmpty()) {
+                //竟然可以将png转为jpg
                 String fileName = originalUniqId.replace(" ", "") + "_" + Math.abs(UUID.randomUUID().hashCode());
                 BufferedOutputStream localTmpPic = new BufferedOutputStream(
                         new FileOutputStream(new File(localTmpPicDir + File.separator + fileName + ".jpg")));
@@ -59,12 +60,10 @@ public class UploadController {
 
     // return: final cdn url
     private String processImage(String originalDir, String fileName) {
-        String finalPicCdnUrl = null;
+        log.info("originalDir={}, fileName={}, file separator={}", originalDir, fileName, File.separator);
         String originalPicPath = originalDir + File.separator + fileName + ".jpg";
 
-        finalPicCdnUrl = originalPicPath + "/" + fileName + ".jpg";
-
-        return finalPicCdnUrl;
+        return originalPicPath;
     }
 
 }

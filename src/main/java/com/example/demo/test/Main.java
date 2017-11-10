@@ -49,9 +49,9 @@ public class Main {
         String workerUrl = "http://localhost:8080/api/activity/HandleSubmit/submit";
         ObjectMapper mapper = new ObjectMapper();
 
-        String key = "94d3e85b26dce7a0ec292da44ad3ac75";
-        long partyId = 50002014;
-        String userName = "baiduwangxun";
+        String key = "6456532431";
+        long partyId = 50002;
+        String userName = "bbbb";
 
         List<String> phoneList = new ArrayList<>();
         phoneList.add("15675512071");
@@ -121,42 +121,8 @@ public class Main {
 
         System.out.println("---------------------------------------------------------------");
 
-        String bduss = "GVkOTB2OEwxRkQtMm5qTExSZXBmWTRCNEtaNGVEMjA0cGVIaUZob210M1h6Q0JhTVFBQUFBJCQAAAAAAAAAAAEAAADY-BunYW5vdGhlcl93cml0ZXIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAANc~-VnXP~lZa";
 
-        int salt = 0;
-        for (int i = 0; i < bduss.length(); ++i) {
-            salt += i;
-            salt += (byte) bduss.charAt(i);
-        }
-        salt = salt % 2 + 1;
-        String str = bduss.substring(bduss.length() - salt) + bduss.substring(0, bduss.length() - salt);
-        str = StringUtils.replace(str, "-", "+");
-        str = StringUtils.replace(str, "~", "/");
-        try {
-            byte[] decoded_bytes = Base64.decodeBase64(str.getBytes("UTF-8"));
-            byte[] userIdHigherBytes = new byte[4];
-            byte[] userIdLowerBytes = new byte[4];
-            byte[] userNameBytes = new byte[64];
-            System.arraycopy(decoded_bytes, 60, userIdHigherBytes, 0, 4);
-            System.arraycopy(decoded_bytes, 68, userIdLowerBytes, 0, 4);
-            int userNameLen = 64;
-            if (decoded_bytes.length - 8 - 72 < 64) {
-                userNameLen = decoded_bytes.length - 8 - 72;
-            }
-            System.arraycopy(decoded_bytes, 72, userNameBytes, 0, userNameLen);
-            int userIdLower = bytes2Int(userIdLowerBytes, ByteOrder.LITTLE_ENDIAN);
-            int userIdHigher = bytes2Int(userIdHigherBytes, ByteOrder.LITTLE_ENDIAN);
-            long userId = ((long) userIdLower & 0xFFFFFFFFl) | (((long) userIdHigher << 32) & 0x7FFFFFFF00000000l);
-            System.out.println("userId: " + userId);
-            String baiduuserName = new String(userNameBytes, "GB2312");
-            System.out.println("userName: " + StringUtils.trimTrailingCharacter(baiduuserName, '\0'));
-        } catch (UnsupportedEncodingException e) {
-            System.out.println(e);
-        }
-
-
-
-        String phone = "15675512071";
+        String phone = "1561567777";
         final Pattern pattern = Pattern.compile("^1[0-9]{10}$");
         Matcher matcher = pattern.matcher(phone);
         if (!matcher.find()) {
@@ -202,10 +168,6 @@ public class Main {
         calendar.setTimeInMillis(1509379200 * 1000L);
         System.out.println(calendar.getTime());
 
-        SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        Date date = new Date();
-        date.setTime(1509379200);
-        System.out.println(df.format(date));
 
 //        RestTemplate restTemplate = new RestTemplate();
 //        String result = restTemplate.getForObject("https://api.weixin.qq.com/cgi-bin/getcallbackip?access_token=ACCESS_TOKEN",String.class);
