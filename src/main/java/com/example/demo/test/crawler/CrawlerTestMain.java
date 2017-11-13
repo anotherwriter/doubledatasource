@@ -4,6 +4,8 @@ import com.gargoylesoftware.htmlunit.BrowserVersion;
 import com.gargoylesoftware.htmlunit.Page;
 import com.gargoylesoftware.htmlunit.WebClient;
 import com.gargoylesoftware.htmlunit.html.*;
+import com.gargoylesoftware.htmlunit.javascript.host.html.HTMLElement;
+import com.gargoylesoftware.htmlunit.javascript.host.html.Image;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -34,8 +36,12 @@ public class CrawlerTestMain {
 
         try {
             final HtmlPage htmlPage = webClient.getPage("http://www.iqiyi.com");
+            if (null == htmlPage) {
+                System.out.println("htmlPage is null");
+                return;
+            }
 
-            Thread.sleep(2 * 1000);
+            Thread.sleep(4 * 1000);
             // TODO check anchor href. let illegal to be legal
             HtmlAnchor dianYingAnchor = htmlPage.getAnchorByText("电影");
             HtmlPage dianYingPage = webClient.getPage("http:" + dianYingAnchor.getHrefAttribute());
@@ -44,8 +50,13 @@ public class CrawlerTestMain {
             HtmlAnchor freeMovieAnchor = dianYingPage.getAnchorByText("免费电影");
             HtmlPage freeMoviePage = webClient.getPage(freeMovieAnchor.getHrefAttribute());
 
-            // 获取文档中所有的div
-            List<HtmlDivision> htmlDivisions = (List<HtmlDivision>) freeMoviePage.getByXPath("//div");
+            // 获取文档中所有的div 不管他们在文档中的位置
+//            List<HtmlDivision> htmlDivisions = (List<HtmlDivision>) freeMoviePage.getByXPath("//div[@class='site-piclist_pic']");
+//            for (HtmlDivision htmlDivision : htmlDivisions) {
+//                HtmlAnchor a = htmlDivision.getFirstByXPath("a");
+//                String href = a.getAttribute("href").trim();
+//                String title = a.getAttribute("title").trim();
+//            }
 
             // 通过css选择器Selector获取元素
             // 获取当前页所有class="site-piclist_pic"的元素 返回DOM节点列表
@@ -57,10 +68,14 @@ public class CrawlerTestMain {
                 String href = a.getAttribute("href").trim();
                 String title = a.getAttribute("title").trim();
 
+                HtmlImage img = a.getFirstByXPath("img");
+                String thumbnail = img.getSrcAttribute();
+
                 Movie tmpMovie = new Movie();
                 tmpMovie.setTitle(title);
                 tmpMovie.setUrl(href);
                 tmpMovie.setFrom("www.iqiyi.com");
+                tmpMovie.setThumbnail(thumbnail);
 
                 movies.add(tmpMovie);
             }
@@ -118,6 +133,7 @@ public class CrawlerTestMain {
         private String from; // 来源
         private String info; // 视频介绍
         private String tag; // 视频标签
+        private String thumbnail;
 
     }
 
