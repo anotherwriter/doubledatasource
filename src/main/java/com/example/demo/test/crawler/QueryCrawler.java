@@ -26,6 +26,8 @@ public class QueryCrawler {
             System.out.println("searchInput: " + searchInput.getTextContent());
 
 
+            HtmlForm htmlForm = searchHomePage.querySelector("form[data-suggest-elem=\"form\"]");
+            htmlForm.setActionAttribute("");
             List<HtmlForm> htmlForms = searchHomePage.getForms();
             System.out.println("htmlForm: " + htmlForms.get(0).getActionAttribute());
 //            HtmlInput searchButton = searchHomePage.querySelector("input[data-suggest-elem=\"btn\"]");
