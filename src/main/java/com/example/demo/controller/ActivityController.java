@@ -34,6 +34,9 @@ import java.util.regex.Pattern;
 @Slf4j
 public class ActivityController {
 
+    @Value("${test.property.name:hhh}")
+    private String name;
+
     @Value("${activity.xiaomi.charging.enable:true}")
     private boolean xiaomiChargingDataEnabled;
 
@@ -44,6 +47,11 @@ public class ActivityController {
 
     private final LastRunTimeMapper lastRunTimeMapper;
 
+    @RequestMapping(method = RequestMethod.GET, value = "/get_name")
+    @ResponseStatus(HttpStatus.OK)
+    public ApiResponse getName() {
+        return new ApiResponse(name);
+    }
 
     @RequestMapping(method = RequestMethod.GET, value = "/send_req")
     @ResponseStatus(HttpStatus.OK)

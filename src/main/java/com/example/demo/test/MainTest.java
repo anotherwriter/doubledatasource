@@ -1,23 +1,30 @@
 package com.example.demo.test;
 
 
-import com.example.demo.model.db.User;
 import com.example.demo.model.db.UserInfo;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.ConfigurableApplicationContext;
+import org.springframework.core.env.MutablePropertySources;
+import org.springframework.core.env.PropertySource;
 
 import java.io.UnsupportedEncodingException;
 import java.math.BigInteger;
-import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.nio.ByteBuffer;
-import java.nio.charset.Charset;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.text.SimpleDateFormat;
 import java.util.*;
-
+@SpringBootApplication
 public class MainTest {
 
-    public static void main(String[] args){
+    public static void main(String[] args) {
+        ConfigurableApplicationContext context = SpringApplication.run(MainTest.class, args);
+        MutablePropertySources mutablePropertySources = context.getEnvironment().getPropertySources();
+        Iterator<PropertySource<?>> iterator = mutablePropertySources.iterator();
+        while (iterator.hasNext()) {
+            System.out.println(iterator.next());
+        }
 
         try {
             System.out.println(URLEncoder.encode("虫师", "utf-8"));
