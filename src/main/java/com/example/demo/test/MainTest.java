@@ -19,6 +19,14 @@ public class MainTest {
 
     public static void main(String[] args){
 
+        try {
+            System.out.println(URLEncoder.encode("虫师", "utf-8"));
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
+        long stamp = (long) Math.floor(new Date().getTime() * Math.random());
+        System.out.println(stamp);
+
         List<UserInfo> command = new ArrayList<>();
 
         UserInfo astr = new UserInfo(1, "1");
