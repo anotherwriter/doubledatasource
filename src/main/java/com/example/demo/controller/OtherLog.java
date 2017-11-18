@@ -8,15 +8,18 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
+import javax.annotation.PostConstruct;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.io.InputStream;
 import java.net.InetAddress;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicLong;
 
 @RestController
 @RequestMapping(value = "/other")
@@ -24,11 +27,21 @@ import java.util.Map;
 @Slf4j
 public class OtherLog {
 
-    @RequestMapping(method = RequestMethod.POST, value = "/test1")
+    @Value("${activity.vivo.gift.number:8000}")
+    private long vivoActivityGiftNumber;
+
+    private AtomicLong giftNumber;
+
+    @PostConstruct
+    private void init() {
+        giftNumber = new AtomicLong(vivoActivityGiftNumber);
+    }
+
+    @RequestMapping(method = RequestMethod.GET, value = "/test1")
     @ResponseStatus(HttpStatus.OK)
-    public String testReq1(@RequestParam(name = "a") String a) {
+    public String testReq1(@RequestParam(name = "a", required = false) String a) {
         log.info("testPost: a={}", a);
-        return "a: " + a;
+        return "a: " + a + "number: " + giftNumber.get();
     }
 
     @RequestMapping(method = RequestMethod.POST, value = "/test2")
@@ -98,6 +111,13 @@ public class OtherLog {
         return "testReq9 param:" + param;
     }
 
+    @RequestMapping(method = RequestMethod.POST, value = "/test10")
+    @ResponseStatus(HttpStatus.OK)
+    public String testReq10(@RequestBody LotteryData lotteryData) {
+        log.info("testPost: param={}", lotteryData.getDatas());
+        return "testReq9 param:" + lotteryData.getDatas().toString();
+    }
+
 
     @RequestMapping(method = RequestMethod.GET, value = "{str}")
     @ResponseStatus(HttpStatus.OK)
@@ -164,6 +184,11 @@ public class OtherLog {
             }
         }
         return ip;
+    }
+
+    @Data
+    static class LotteryData {
+        List<String> datas;
     }
 
 }

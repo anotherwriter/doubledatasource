@@ -2,11 +2,17 @@ package com.example.demo.test;
 
 
 import com.example.demo.model.db.UserInfo;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.core.env.MutablePropertySources;
 import org.springframework.core.env.PropertySource;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.web.client.RestTemplate;
 
 import java.io.UnsupportedEncodingException;
 import java.math.BigInteger;
@@ -19,6 +25,55 @@ import java.util.*;
 public class MainTest {
 
     public static void main(String[] args) {
+        String username = "baiduvr";
+        String password = "baidu_vr";
+        String businessCode = "BaiduVR";
+        String content = "writer test 123";
+        String dest = "15675512071";
+
+        // 准备签名 ,请保证被md5的内容的编码为utf8
+        if (dest == null || dest.isEmpty() || content == null || content.isEmpty()) {
+            throw new IllegalArgumentException("发送短信失败，参数content，dest不能为空");
+        }
+        String signature = MD5(username + password + dest + content + businessCode);
+
+        post(username, businessCode, content, dest, signature);
+    }
+
+    private static void post(String username, String businessCode, String content, String dest, String signature) {
+        RestTemplate restTemplate = new RestTemplate();
+        HttpHeaders headers = new HttpHeaders();
+        String url = "http://emsgtest.baidu.com/service/sendSms.json";
+
+        try {
+            //do req
+            LinkedMultiValueMap map = new LinkedMultiValueMap();
+            map.add("businessCode", businessCode);
+            map.add("msgDest", dest);
+            map.add("msgContent", content);
+            map.add("username", username);
+            map.add("signature", signature);
+
+            System.out.println("send req data: " + StringUtils.join(map));
+
+            headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
+            HttpEntity<Map<String, String>> httpEntity = new HttpEntity<>(map, headers);
+
+            String result = "";
+            try {
+                result = restTemplate.postForObject(url, httpEntity, String.class);
+            } catch (Exception e) {
+                System.out.println(e.getMessage());
+            }
+            System.out.println("rsp result=" + result);
+        } catch (Exception e) {
+            throw new RuntimeException("发送短信失败", e);
+        }
+    }
+
+    public static void main(String[] args) {
+
+
         ConfigurableApplicationContext context = SpringApplication.run(MainTest.class, args);
         MutablePropertySources mutablePropertySources = context.getEnvironment().getPropertySources();
         Iterator<PropertySource<?>> iterator = mutablePropertySources.iterator();

@@ -1,25 +1,18 @@
 package com.example.demo.test.crawler;
 
 import com.gargoylesoftware.htmlunit.BrowserVersion;
-import com.gargoylesoftware.htmlunit.Page;
 import com.gargoylesoftware.htmlunit.WebClient;
 import com.gargoylesoftware.htmlunit.html.*;
-import com.gargoylesoftware.htmlunit.javascript.host.html.HTMLElement;
-import com.gargoylesoftware.htmlunit.javascript.host.html.Image;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpPost;
 import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
 import org.apache.http.conn.ssl.TrustStrategy;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.ssl.SSLContextBuilder;
-import org.apache.log4j.Logger;
 import org.springframework.util.StringUtils;
 
 import javax.net.ssl.SSLContext;
@@ -27,21 +20,26 @@ import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Level;
+import java.util.Random;
 
 @Slf4j
 public class CrawlerTestMain {
 
+    private final static Random rand = new Random();
 
     public static void main(String[] args){
-        Logger.getLogger("com.gargoylesoftware").setLevel(org.apache.log4j.Level.WARN);
-        java.util.logging.Logger.getLogger("com.gargoylesoftware").setLevel(Level.SEVERE);
-        WebClient webClient = new WebClient(BrowserVersion.FIREFOX_38);
-        webClient.getOptions().setCssEnabled(true);
-        webClient.getOptions().setJavaScriptEnabled(true);
+        WebClient webClient = new WebClient(BrowserVersion.CHROME);
+        webClient.getOptions().setCssEnabled(false);
+        webClient.getOptions().setJavaScriptEnabled(false);
         webClient.getOptions().setThrowExceptionOnScriptError(false); // script脚本执行异常时 不抛出异常
         webClient.getOptions().setThrowExceptionOnFailingStatusCode(false); // 获取失败的状态码时 不抛出异常
+        webClient.getOptions().setRedirectEnabled(true);
+        webClient.getOptions().setGeolocationEnabled(false);
+        webClient.getOptions().setAppletEnabled(false);
+        webClient.getOptions().setDoNotTrackEnabled(true);
+        webClient.getOptions().setTimeout(120000);
         webClient.getOptions().setPopupBlockerEnabled(true);
+        webClient.getOptions().setUseInsecureSSL(true);
         //new SimpleConnectionListener(webClient);
 
         final String homePageUrl = "http://www.iqiyi.com";
@@ -73,15 +71,15 @@ public class CrawlerTestMain {
             List<Movie> movies = new ArrayList<>();
             int pageNo = 1;
             for (; ;) {
-                if (pageNo == 3) {
+                if (pageNo == 2) {
                     break;
                 }
                 System.out.println("当前页数: " + pageNo);
+                getMovieData(movies, freeMoviePage, webClient);
                 HtmlAnchor nextPageAnchor = freeMoviePage.getAnchorByText("下一页");
                 if (null == nextPageAnchor) {
                     break;
                 }
-                getMovieData(movies, freeMoviePage, webClient);
                 freeMoviePage = nextPageAnchor.click();
                 pageNo ++;
             }
@@ -109,26 +107,35 @@ public class CrawlerTestMain {
 //            }
 
         // 通过css选择器Selector获取元素
-        // 获取当前页所有class="site-piclist_pic"的元素 返回DOM节点列表
-        DomNodeList<DomNode> picDivDomNodes = freeMoviePage.querySelectorAll(".site-piclist_pic");
-        DomNodeList<DomNode> infoDivDomNodes = freeMoviePage.querySelectorAll(".site-piclist_info");
+        // 获取当前页所有div class="site-piclist_pic"的元素 返回DOM节点列表
+        DomNodeList<DomNode> picDivDomNodes = freeMoviePage.querySelectorAll("div.site-piclist_pic");
+        DomNodeList<DomNode> infoDivDomNodes = freeMoviePage.querySelectorAll("div.site-piclist_info");
 
         try {
             int times = 0;
-            for (DomNode domNode : picDivDomNodes) {
+            for (int i = 0; i < picDivDomNodes.size(); i++) {
                 times ++;
-                if (times == 3) {
-                    break;
-                }
+//                if (times == 3) {
+//                    break;
+//                }
                 Movie tmpMovie = new Movie();
+                DomNode picDivdomNode = picDivDomNodes.get(i);
+                DomNode infoDivDomNode = infoDivDomNodes.get(i);
 
-                HtmlAnchor a = domNode.querySelector("a");
+                // get movie score
+                HtmlElement scoreSpan = infoDivDomNode.querySelector("span.score");
+                if (null != scoreSpan)
+                    tmpMovie.setScore(scoreSpan.getTextContent().trim());
+//                else
+//                    tmpMovie.setScore(String.format("%d.%d", rand.nextInt(8), rand.nextInt(8)));
+
+                HtmlAnchor a = picDivdomNode.querySelector("a");
                 String href = a.getAttribute("href").trim();
                 String title = a.getAttribute("title").trim();
 
                 if (!StringUtils.isEmpty(href)) {
                     HtmlPage speicalMoviePage = webClient.getPage(href);
-                    Thread.sleep(4 * 1000);
+                    Thread.sleep(2000);
 
                     // get the movie's tag
                     DomElement tagSpan = speicalMoviePage.getElementById("datainfo-taglist");
@@ -136,50 +143,50 @@ public class CrawlerTestMain {
                         DomNodeList<DomNode> tags = tagSpan.getChildNodes();
                         String tagStr = "";
                         for (DomNode tag : tags) {
-                            tagStr += tag.getTextContent().trim() + " ";
+                            log.info("name: {}, tag: {}", title, tag.asText());
+                            String tempStr = tag.getTextContent().trim();
+                            tempStr = tempStr.replaceAll("\\s", "");
+                            if (!StringUtils.isEmpty(tempStr))
+                                tagStr += (tempStr + ",");
                         }
                         tmpMovie.setTag(tagStr);
                     }
 
-                    // get the movie's tag info
+                    // get the movie's info
                     DomElement infoSpan = speicalMoviePage.getElementById("data-videoInfoDes");
                     if (null != infoSpan) {
                         tmpMovie.setInfo(infoSpan.getTextContent().trim());
+                    }
+
+                    // get the movie score
+                    DomElement tmpScoreSpan = speicalMoviePage.querySelector("span.score-new");
+                    if (null != tmpScoreSpan)
+                        log.info("scoreSpan: {}", tmpScoreSpan.asXml());
+                    if (StringUtils.isEmpty(tmpMovie.getScore())) {
+                        if (null != tmpScoreSpan) {
+                            tmpMovie.setInfo(tmpScoreSpan.getAttribute("snsscore").trim());
+                        }
                     }
 
                     speicalMoviePage.cleanUp();
                 }
 
                 HtmlImage img = a.getFirstByXPath("img");
-                String thumbnail = img.getSrcAttribute();
-
+                if (null != img) {
+                    String thumbnail = img.getSrcAttribute();
+                    tmpMovie.setThumbnail(thumbnail);
+                }
 //                HtmlElement timeSpan = a.getFirstByXPath("span[@class='icon-vInfo']");
-                HtmlElement timeSpan = domNode.querySelector("span");
+                HtmlElement timeSpan = picDivdomNode.querySelector("span");
                 if (null != timeSpan)
                     tmpMovie.setTime(timeSpan.getTextContent().trim());
 
                 tmpMovie.setTitle(title);
                 tmpMovie.setUrl(href);
-                tmpMovie.setThumbnail(thumbnail);
+
                 tmpMovie.setFrom("www.iqiyi.com");
 
                 movies.add(tmpMovie);
-            }
-
-            times = 0;
-            for (int i = 0; i < infoDivDomNodes.size(); i++) {
-                times ++;
-                if (times == 3) {
-                    break;
-                }
-
-                Movie tmpMovie = movies.get(i);
-                DomNode domNode = infoDivDomNodes.get(i);
-
-                HtmlElement scoreSpan = domNode.querySelector("span");
-//                HtmlElement scoreSpan = domNode.getFirstByXPath("span[@class='score']");
-                if (null != scoreSpan)
-                    tmpMovie.setScore(scoreSpan.getTextContent().trim());
             }
 
         } catch (Exception e) {
@@ -220,6 +227,8 @@ public class CrawlerTestMain {
         private String from; // 来源
         private String info; // 视频介绍
         private String tag; // 视频标签
+
+        private String playCount;
 
 
     }

@@ -26,10 +26,15 @@ public class QueryCrawler {
         String queryUrl = "http://so.iqiyi.com/so/q_" + keyWord + params;
 
         WebClient webClient = new WebClient(BrowserVersion.CHROME);
-        webClient.getOptions().setCssEnabled(true);
-        webClient.getOptions().setJavaScriptEnabled(true);
+        webClient.getOptions().setCssEnabled(false);
+        webClient.getOptions().setJavaScriptEnabled(false);
         webClient.getOptions().setThrowExceptionOnScriptError(false); // script脚本执行异常时 不抛出异常
         webClient.getOptions().setThrowExceptionOnFailingStatusCode(false); // 获取失败的状态码时 不抛出异常
+        webClient.getOptions().setRedirectEnabled(true);
+        webClient.getOptions().setGeolocationEnabled(false);
+        webClient.getOptions().setAppletEnabled(false);
+        webClient.getOptions().setDoNotTrackEnabled(true);
+        webClient.getOptions().setTimeout(120000);
         webClient.getOptions().setPopupBlockerEnabled(true);
         webClient.getOptions().setUseInsecureSSL(true);
 
@@ -52,7 +57,7 @@ public class QueryCrawler {
 //            HtmlPage resultPage = searchButton.click();
             HtmlPage resultPage = searchHomePage;
             if (null != resultPage) {
-                DomNodeList<DomNode> lis = resultPage.querySelectorAll("li[class=\"list_item\"]");
+                DomNodeList<DomNode> lis = resultPage.querySelectorAll("li.list_item");
                 if (null == lis) {
                     log.error("domNodes is null");
                 } else {
@@ -69,7 +74,11 @@ public class QueryCrawler {
 
                         HtmlAnchor a = li.querySelector("a.figure"); // return the a with class="figure" element
                         String href = a.getHrefAttribute();
-                        log.info("movieName: {}, href: {}", movieName, href);
+
+                        HtmlImage img = li.querySelector("img");
+                        String imgUrl = img.getSrcAttribute();
+
+                        log.info("movieName: {}, href: {} img: {}", movieName, href, imgUrl);
                     }
                 }
 
