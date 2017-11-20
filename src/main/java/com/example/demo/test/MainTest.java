@@ -25,53 +25,6 @@ import java.util.*;
 public class MainTest {
 
     public static void main(String[] args) {
-        String username = "";
-        String password = "";
-        String businessCode = "";
-        String content = "";
-        String dest = "";
-
-        // 准备签名 ,请保证被md5的内容的编码为utf8
-        if (dest == null || dest.isEmpty() || content == null || content.isEmpty()) {
-            throw new IllegalArgumentException("发送短信失败，参数content，dest不能为空");
-        }
-        String signature = Tools.MD5(username + password + dest + content + businessCode);
-
-        post(username, businessCode, content, dest, signature);
-    }
-
-    private static void post(String username, String businessCode, String content, String dest, String signature) {
-        RestTemplate restTemplate = new RestTemplate();
-        HttpHeaders headers = new HttpHeaders();
-        String url = "http://emsgtest.baidu.com/service/sendSms.json";
-
-        try {
-            //do req
-            LinkedMultiValueMap map = new LinkedMultiValueMap();
-            map.add("businessCode", businessCode);
-            map.add("msgDest", dest);
-            map.add("msgContent", content);
-            map.add("username", username);
-            map.add("signature", signature);
-
-            System.out.println("send req data: " + StringUtils.join(map));
-
-            headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
-            HttpEntity<Map<String, String>> httpEntity = new HttpEntity<>(map, headers);
-
-            String result = "";
-            try {
-                result = restTemplate.postForObject(url, httpEntity, String.class);
-            } catch (Exception e) {
-                System.out.println(e.getMessage());
-            }
-            System.out.println("rsp result=" + result);
-        } catch (Exception e) {
-            throw new RuntimeException("发送短信失败", e);
-        }
-    }
-/*
-    public static void main(String[] args) {
 
 
         ConfigurableApplicationContext context = SpringApplication.run(MainTest.class, args);
@@ -130,7 +83,6 @@ public class MainTest {
 
         //System.out.println(Tools.MD5("abcde123"));
     }
-    */
 }
 
 class Tools {
