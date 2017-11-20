@@ -25,17 +25,17 @@ import java.util.*;
 public class MainTest {
 
     public static void main(String[] args) {
-        String username = "baiduvr";
-        String password = "baidu_vr";
-        String businessCode = "BaiduVR";
-        String content = "writer test 123";
-        String dest = "15675512071";
+        String username = "";
+        String password = "";
+        String businessCode = "";
+        String content = "";
+        String dest = "";
 
         // 准备签名 ,请保证被md5的内容的编码为utf8
         if (dest == null || dest.isEmpty() || content == null || content.isEmpty()) {
             throw new IllegalArgumentException("发送短信失败，参数content，dest不能为空");
         }
-        String signature = MD5(username + password + dest + content + businessCode);
+        String signature = Tools.MD5(username + password + dest + content + businessCode);
 
         post(username, businessCode, content, dest, signature);
     }
@@ -70,7 +70,7 @@ public class MainTest {
             throw new RuntimeException("发送短信失败", e);
         }
     }
-
+/*
     public static void main(String[] args) {
 
 
@@ -130,6 +130,7 @@ public class MainTest {
 
         //System.out.println(Tools.MD5("abcde123"));
     }
+    */
 }
 
 class Tools {
